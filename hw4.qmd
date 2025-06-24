@@ -7,16 +7,6 @@ editor: visual
 
 ## Task 1: Conceptual Questions
 
-###
-
-## Task 2: Writing R Functions
-
-```{r}
-1 + 1
-```
-
-## Task 3: Querying an API and a Tidy-Style Function
-
 ### Question 1
 
 The purpose of $lapply()$ is to apply functions to each element of a list and returns a list. The equivalent $purrr$ function is $map()$.
@@ -39,3 +29,138 @@ A side-effect function doesn't try to change or transform the data, it just trie
 ### Question 5
 
 This is because when you call a function, it creates a temporary function environment (lexical scoping).
+
+## Task 2: Writing R Functions
+
+
+### Question 1
+```{r}
+getRMSE <- function(responses, predictions, ...) {
+  rmse <- sqrt(mean((responses - predictions)^2, ...))
+  
+  return(rmse)
+}
+```
+
+### Question 2
+
+```{r}
+#get sample data
+set.seed(10)
+n <- 100
+x <- runif(n)
+resp <- 3 + 10*x + rnorm(n)
+pred <- predict(lm(resp ~ x), data.frame(x))
+
+#Test function on data
+getRMSE(resp, pred)
+
+#Get NA data
+resp_w_na <- resp
+resp_w_na[c(1,2)] <- NA_real_
+
+#Test with specifying behavior
+getRMSE(resp_w_na, pred, na.rm = TRUE)
+
+#Test without specifying behavior
+getRMSE(resp_w_na, pred)
+```
+### Question 3
+
+```{r}
+getMAE <- function(responses, predictions, ...) {
+  mae <- mean(abs(responses - predictions), ...)
+  
+  return(mae)
+}
+```
+
+### Question 4
+
+```{r}
+#get sample data
+set.seed(10)
+n <- 100
+x <- runif(n)
+resp <- 3 + 10*x + rnorm(n)
+pred <- predict(lm(resp ~ x), data.frame(x))
+
+#Test function on data
+getMAE(resp, pred)
+
+#Get NA data
+resp_w_na <- resp
+resp_w_na[c(1,2)] <- NA_real_
+
+#Test with specifying behavior
+getMAE(resp_w_na, pred, na.rm = TRUE)
+
+#Test without specifying behavior
+getMAE(resp_w_na, pred)
+```
+
+### Question 5
+
+```{r}
+wrapper_metrics <- function(responses, predictions, metrics = c("RMSE", "MAE"), ...) {
+  #check that two numeric atomic vectors have passed
+  if (!(is.vector(responses) && is.atomic(responses) && is.numeric(responses))) {
+    return(NULL)
+  }
+  if (!(is.vector(predictions) && is.atomic(predictions) && is.numeric(predictions))) {
+    return(NULL)
+  }
+  
+  #store results in a list
+  stored_metrics <- list()
+  #check for RMSE
+  if ("RMSE" %in% metrics) {
+    stored_metrics$RMSE <- getRMSE(responses, predictions, ...)
+  }
+  #check for MAE
+  if ("MAE" %in% metrics) {
+    stored_metrics$MAE <- getMAE(responses, predictions, ...)
+  }
+  
+  #return results
+  return(stored_metrics)
+}
+```
+
+### Question 6
+
+```{r}
+#get sample data
+set.seed(10)
+n <- 100
+x <- runif(n)
+resp <- 3 + 10*x + rnorm(n)
+pred <- predict(lm(resp ~ x), data.frame(x))
+
+#Test function on RMSE
+wrapper_metrics(resp, pred, "RMSE")
+
+#Test function on MAE
+wrapper_metrics(resp, pred, "MAE")
+
+#Test function on both
+wrapper_metrics(resp, pred)
+
+#Get NA data
+resp_w_na <- resp
+resp_w_na[c(1,2)] <- NA_real_
+
+#Test function on RMSE w/ NA
+wrapper_metrics(resp_w_na, pred, "RMSE", na.rm = TRUE)
+
+#Test function on MAE w/ NA
+wrapper_metrics(resp_w_na, pred, "MAE", na.rm = TRUE)
+
+#Test function on both w/ NA
+wrapper_metrics(resp_w_na, pred, na.rm = TRUE)
+
+#Test using incorrect data
+wrapper_metrics(iris, pred)
+```
+
+## Task 3: Querying an API and a Tidy-Style Function
