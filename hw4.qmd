@@ -1,0 +1,41 @@
+---
+title: "HW4 - Programming in Base R"
+author: Kayla Kippes
+format: pdf
+editor: visual
+---
+
+## Task 1: Conceptual Questions
+
+###
+
+## Task 2: Writing R Functions
+
+```{r}
+1 + 1
+```
+
+## Task 3: Querying an API and a Tidy-Style Function
+
+### Question 1
+
+The purpose of $lapply()$ is to apply functions to each element of a list and returns a list. The equivalent $purrr$ function is $map()$.
+
+### Question 2
+
+```{r}
+lapply(my_list, cor, method = "kendall")
+```
+
+### Question 3
+
+1. It gives cleaner and more readable code.
+2. It provides more functionality.
+
+### Question 4 
+
+A side-effect function doesn't try to change or transform the data, it just tries to produce something.
+
+### Question 5
+
+This is because when you call a function, it creates a temporary function environment (lexical scoping).
