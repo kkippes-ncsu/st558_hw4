@@ -14,6 +14,8 @@ The purpose of $lapply()$ is to apply functions to each element of a list and re
 ### Question 2
 
 ```{r}
+#| eval: false
+#| include: true
 lapply(my_list, cor, method = "kendall")
 ```
 
@@ -102,12 +104,15 @@ getMAE(resp_w_na, pred)
 ### Question 5
 
 ```{r}
-wrapper_metrics <- function(responses, predictions, metrics = c("RMSE", "MAE"), ...) {
+wrapper_metrics <- function(responses, predictions, 
+                            metrics = c("RMSE", "MAE"), ...) {
   #check that two numeric atomic vectors have passed
-  if (!(is.vector(responses) && is.atomic(responses) && is.numeric(responses))) {
+  if (!(is.vector(responses) && is.atomic(responses) 
+        && is.numeric(responses))) {
     return(NULL)
   }
-  if (!(is.vector(predictions) && is.atomic(predictions) && is.numeric(predictions))) {
+  if (!(is.vector(predictions) && is.atomic(predictions) 
+        && is.numeric(predictions))) {
     return(NULL)
   }
   
@@ -164,3 +169,48 @@ wrapper_metrics(iris, pred)
 ```
 
 ## Task 3: Querying an API and a Tidy-Style Function
+
+
+### Question 1
+```{r}
+library(httr)
+
+api_key <- '6a44e855b7b643adb4a58bc5b15c26a2'
+
+result <- GET(url = 'https://newsapi.org/v2/everything', 
+              query = list(q = 'economy', apiKey = api_key))
+```
+
+### Question 2
+
+```{r}
+#| warning: false
+#| message: false
+
+library(jsonlite)
+library(tidyverse)
+parsed <- fromJSON(rawToChar(result$content))
+economy_info <- as_tibble(parsed$articles)
+head(economy_info)
+```
+
+```{r}
+query_api <- function(title, time_period, api_key) {
+  #get the result
+  result <- GET(url = 'https://newsapi.org/v2/everything',
+               query = list(
+                 q = title,
+                 from = time_period,
+                 apiKey = api_key
+               ))
+  #parse it
+  parsed <- fromJSON(rawToChar(result$content))
+  #go to the data frame and return
+  return(head(as_tibble(parsed$articles)))
+}
+
+query_api('gamestop', '2025-06-13', '6a44e855b7b643adb4a58bc5b15c26a2')
+```
+
+
+
